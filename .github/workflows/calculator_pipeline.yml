@@ -16,10 +16,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Login to Azure Container Registry
+      # Login to Azure Container Registry using environment variables directly
       - name: Login to Azure Container Registry
+        env:
+          DOCKER_USERNAME: ${{ secrets.ACR_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.ACR_PASSWORD }}
         run: |
-          echo "${{ secrets.ACR_PASSWORD }}" | docker login judevops.azurecr.io -u ${{ secrets.ACR_USERNAME }} --password-stdin
+          echo $DOCKER_PASSWORD | docker login judevops.azurecr.io -u $DOCKER_USERNAME --password-stdin
 
       # Build and Push Docker Image
       - name: Build and Push Docker Image
