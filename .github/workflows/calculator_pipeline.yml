@@ -1,14 +1,10 @@
 name: Build and Push Docker Image
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
@@ -20,10 +16,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Run a simple script to confirm the workflow is working
-      - name: Run a one-line script
-        run: echo Hello, world!
-
       # Login to Azure Container Registry
       - name: Login to Azure Container Registry
         run: |
@@ -34,4 +26,3 @@ jobs:
         run: |
           docker build -t judevops.azurecr.io/klaudia_kluch-calculator:latest .
           docker push judevops.azurecr.io/klaudia_kluch-calculator:latest
-
