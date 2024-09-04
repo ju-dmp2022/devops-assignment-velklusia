@@ -24,8 +24,13 @@ jobs:
         run: |
           echo $DOCKER_PASSWORD | docker login judevops.azurecr.io -u $DOCKER_USERNAME --password-stdin
 
-      # Build and Push Docker Image
-      - name: Build and Push Docker Image
+      # Build Docker Image
+      - name: Build Docker Image
         run: |
+          cd BE
           docker build -t judevops.azurecr.io/klaudia_kluch-calculator:latest .
+
+      # Push Docker Image
+      - name: Push Docker Image
+        run: |
           docker push judevops.azurecr.io/klaudia_kluch-calculator:latest
