@@ -17,7 +17,7 @@ jobs:
     workflow_dispatch:
 
     steps:
-      # Step 1: Checkout the code from the repository
+      # Checkout the code from the repository
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -25,12 +25,12 @@ jobs:
       - name: Run a one-line script
         run: echo Hello, world!
 
-      # Step 2: Login to Azure Container Registry
+      #  Login to Azure Container Registry
       - name: Login to Azure Container Registry
         run: |
           echo "${{ secrets.ACR_PASSWORD }}" | docker login judevops.azurecr.io -u ${{ secrets.ACR_USERNAME }} --password-stdin
 
-      # Step 3: Build and Push Docker Image
+      # Build and Push Docker Image
       - name: Build and Push Docker Image
         run: |
           docker build -t judevops.azurecr.io/klaudia_kluch-calculator:latest .
