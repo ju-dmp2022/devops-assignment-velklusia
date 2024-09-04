@@ -51,7 +51,7 @@ elif (args.subtract):
     print(f'I INDEED WORKED 🦝 {args.subtract[0]}-{args.subtract[1]}={result}')
 elif (args.multiply):
     result = CalculatorHelper().multiply(args.multiply[0], args.multiply[1])
-    print(f'I INDEED WORKED 🐜 {args.multiply[0]}*{args.multiply[1]}={result}')
+    print(f'I INDEED WORKED 🐘 {args.multiply[0]}*{args.multiply[1]}={result}')
 elif (args.divide):
     result = CalculatorHelper().divide(args.divide[0], args.divide[1])
     print(f'I INDEED WORKED 🐺 {args.divide[0]}/{args.divide[1]}={result}')
