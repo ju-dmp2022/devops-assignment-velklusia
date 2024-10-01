@@ -1,4 +1,4 @@
-import logger
+#import logger
 
 class CalculatorHelper():
     log_properties = {
@@ -22,7 +22,7 @@ class CalculatorHelper():
             admin = self.User('admin','test1234')
             self._user_list.append(admin)
             self._is_initialized = True
-            self.logger = logger.get_logger(__name__)
+            #self.logger = logger.get_logger(__name__)
 
     class User():
         def __init__(self, username, password):
@@ -34,23 +34,27 @@ class CalculatorHelper():
 
     def add(self, a, b):
         result = a + b
-        self.logger.debug(f"Adding numbers: {a} + {b}. Result: {result}", extra=self.log_properties)
+        #self.logger.debug(f"Adding numbers: {a} + {b}. Result: {result}", extra=self.log_properties)
         return result
 
     def subtract(self, a, b):
         result = a - b
-        self.logger.debug(f"Subtracting numbers: {a} - {b}. Result: {result}", extra=self.log_properties)
+        #self.logger.debug(f"Subtracting numbers: {a} - {b}. Result: {result}", extra=self.log_properties)
         return result
 
     def multiply(self, a, b):
         result = a * b
-        self.logger.debug(f"Multiplying numbers: {a} * {b}. Result: {result}", extra=self.log_properties)
+        #self.logger.debug(f"Multiplying numbers: {a} * {b}. Result: {result}", extra=self.log_properties)
         return result
 
     def divide(self, a, b):
+        if b == 0:
+            raise ValueError("Cannot divide by zero")
         result = a / b
-        self.logger.debug(f"Dividing numbers: {a} / {b}. Result: {result}", extra=self.log_properties)
+    #self.logger.debug(f"Dividing numbers: {a} / {b}. Result: {result}", extra=self.log_properties)
         return result
+
+    
 
     def register_user(self, username, password):
         for user in self._user_list:
@@ -73,4 +77,4 @@ class CalculatorHelper():
         return user
 
     def get_current_user(self):
-        return self._current_user
+       return self._current_user
