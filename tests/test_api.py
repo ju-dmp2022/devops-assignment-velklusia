@@ -1,4 +1,9 @@
 import requests
+from calculator_client.models.calculation import Calculation
+from calculator_client.models.opertions import Opertions
+from calculator_client.api.actions import calculate, login
+from calculator_client.models import ResultResponse, User, UserResponse, ErrorResponse
+from calculator_client.client import Client
 
 BASE_URL = "http://localhost:5000"
 
@@ -90,3 +95,8 @@ def test_division_negative_numbers():
     }, timeout=10)
     assert response.status_code == 200
     assert response.json()["result"] == 4
+
+def test_example():
+    client = Client(base_url="http://localhost:5000")
+    response = calculate.sync(client = client, body = Calculation(operation=Opertions.ADD, operand1 = 1, operand2 = 3))
+    assert response.result == 4
