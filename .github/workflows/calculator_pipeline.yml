@@ -35,8 +35,9 @@ jobs:
 
       # Run tests with pytest
       - name: Run tests
+         export PYTHONPATH=$PYTHONPATH:$(pwd)/tests
         run: pytest --junit-xml=report.xml  
-
+          
       # Upload test report as artifact
       - name: Upload test report
         uses: actions/upload-artifact@v3
