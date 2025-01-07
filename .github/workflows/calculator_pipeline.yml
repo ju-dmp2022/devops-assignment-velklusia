@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build, Test, and Push Docker Image
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-push:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,7 +16,47 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Login to Azure Container Registry using environment variables directly
+      # Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'  # Adjust if necessary
+
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt  # Ensure your requirements.txt includes all dependencies
+
+      # Start FastAPI server (in the background)
+      - name: Start FastAPI server
+        run: |
+          nohup uvicorn BE.calculator:app --host 0.0.0.0 --port 8000 --reload &  # Adjust path based on your app
+
+      # Wait for API to start (optional, increase time if needed)
+      - name: Wait for API to start
+        run: sleep 10
+
+      # Run tests with pytest
+      - name: Run tests
+        run: pytest --junit-xml=report.xml  # Run pytest and generate XML report
+
+      # Upload test report to GitHub Actions
+      - name: Upload test report
+        uses: pappasam/junit-report-action@v2
+        with:
+          report_path: report.xml  # Path to the generated XML report
+
+  build-and-push:
+    runs-on: ubuntu-latest
+    needs: test  # This ensures that the build and push happen only after tests pass
+
+    steps:
+      # Checkout the code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Login to Azure Container Registry
       - name: Login to Azure Container Registry
         env:
           DOCKER_USERNAME: ${{ secrets.ACR_USERNAME }}
@@ -34,3 +74,4 @@ jobs:
       - name: Push Docker Image
         run: |
           docker push judevops.azurecr.io/klaudia_kluch-calculator:latest
+
