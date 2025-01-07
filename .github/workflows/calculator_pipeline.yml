@@ -15,9 +15,8 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pytest
+        pip install pytest requests httpx selenium
     - name: Set PYTHONPATH
-      run: echo "PYTHONPATH=$PYTHONPATH:/home/runner/work/devops-assignment-velklusia/devops-assignment-velklusia" >> $GITHUB_ENV
+      run: echo "PYTHONPATH=$PYTHONPATH:/home/runner/work/devops-assignment-velklusia/devops-assignment-velklusia/tests" >> $GITHUB_ENV
     - name: Run tests
       run: pytest --junit-xml=report.xml
-
