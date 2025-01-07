@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build, Test, and Push Docker Image
 
 on:
   push:
@@ -8,15 +8,52 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
+  test:
+    runs-on: ubuntu-24.04 
 
     steps:
       # Checkout the code from the repository
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Login to Azure Container Registry using environment variables directly
+      # Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8' 
+
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r BE/requirements.txt
+
+      # Start FastAPI server (in the background)
+      - name: Start FastAPI server
+        run: |
+          nohup uvicorn BE.calculator:app --host 0.0.0.0 --port 5000 --reload &  
+
+      # Run tests with pytest
+      - name: Run tests
+        run: pytest --junit-xml=report.xml  
+
+      # Upload test report as artifact
+      - name: Upload test report
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-report
+          path: report.xml  
+
+  build-and-push:
+    runs-on: ubuntu-24.04 
+    needs: test  # This ensures that the build and push happen only after tests pass
+
+    steps:
+      # Checkout the code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Login to Azure Container Registry
       - name: Login to Azure Container Registry
         env:
           DOCKER_USERNAME: ${{ secrets.ACR_USERNAME }}
@@ -34,3 +71,5 @@ jobs:
       - name: Push Docker Image
         run: |
           docker push judevops.azurecr.io/klaudia_kluch-calculator:latest
+
+
