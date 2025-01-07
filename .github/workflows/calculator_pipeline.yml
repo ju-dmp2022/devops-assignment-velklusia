@@ -1,76 +1,23 @@
-name: Build, Test, and Push Docker Image
+name: Python package
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-  workflow_dispatch:
+on: [push]
 
 jobs:
   test:
-    runs-on: ubuntu-24.04 
+    runs-on: ubuntu-latest
 
     steps:
-      # Checkout the code from the repository
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # Set up Python environment
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.8' 
-
-      # Install dependencies
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r BE/requirements.txt
-
-      # Start FastAPI server (in the background)
-      - name: Start FastAPI server
-        run: |
-          nohup uvicorn BE.calculator:app --host 0.0.0.0 --port 5000 --reload &  
-
-      # Run tests with pytest
-      - name: Run tests
-         export PYTHONPATH=$PYTHONPATH:$(pwd)/BE:$(pwd)/tests
-        run: pytest --junit-xml=report.xml  
-          
-      # Upload test report as artifact
-      - name: Upload test report
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-report
-          path: report.xml  
-
-  build-and-push:
-    runs-on: ubuntu-24.04 
-    needs: test  # This ensures that the build and push happen only after tests pass
-
-    steps:
-      # Checkout the code from the repository
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # Login to Azure Container Registry
-      - name: Login to Azure Container Registry
-        env:
-          DOCKER_USERNAME: ${{ secrets.ACR_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.ACR_PASSWORD }}
-        run: |
-          echo $DOCKER_PASSWORD | docker login judevops.azurecr.io -u $DOCKER_USERNAME --password-stdin
-
-      # Build Docker Image
-      - name: Build Docker Image
-        run: |
-          cd BE
-          docker build -t judevops.azurecr.io/klaudia_kluch-calculator:latest .
-
-      # Push Docker Image
-      - name: Push Docker Image
-        run: |
-          docker push judevops.azurecr.io/klaudia_kluch-calculator:latest
-
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest
+    - name: Set PYTHONPATH
+      run: echo "PYTHONPATH=$PYTHONPATH:/home/runner/work/devops-assignment-velklusia/devops-assignment-velklusia" >> $GITHUB_ENV
+    - name: Run tests
+      run: pytest --junit-xml=report.xml
 
