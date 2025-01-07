@@ -1,5 +1,10 @@
+import os
+import sys
+from BE.calculator_helper import CalculatorHelper
 from tests.test_base import BaseTestCalculator
 import pytest
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 class TestCalculatorHelper(BaseTestCalculator):
 
