@@ -43,7 +43,11 @@ jobs:
           export PYTHONPATH=$PYTHONPATH:./BE
 
       - name: Wait for services to be ready
-        run: sleep 30
+        run: |
+          until curl --fail http://localhost:5000; do
+            echo "Waiting for the web service to be ready..."
+            sleep 5
+          done
 
       - name: Run tests
         run: |
