@@ -1,38 +1,53 @@
-name: Python package
+name: CI
 
-on: [push]
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
 
 jobs:
-  test:
+  test-and-publish:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
+      - uses: actions/checkout@v4
 
-    - name: Create Docker network
-      run: docker network create my-network
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-    - name: Start web service container
-      run: docker run -d --network my-network --name web -p 5000:5000 my-service-image:latest
+      - name: Build and tag Docker image
+        run: |
+          docker build -t my-service-image:latest .
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.8'
-    
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r BE/requirements.txt
+      - name: Create Docker network
+        run: docker network create my-network
 
-    - name: Wait for services to be ready
-      run: sleep 30  # Adjust as necessary to ensure services are ready
+      - name: Start web service container
+        run: |
+          docker run -d --network my-network --name web -p 5000:5000 my-service-image:latest
 
-    - name: Set PYTHONPATH
-      run: echo "PYTHONPATH=$PYTHONPATH:/home/runner/work/devops-assignment-velklusia/devops-assignment-velklusia/tests" >> $GITHUB_ENV
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
 
-    - name: Run tests
-      run: pytest --junit-xml=report.xml
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r BE/requirements.txt
+
+      - name: Wait for services to be ready
+        run: sleep 30
+
+      - name: Run tests
+        run: |
+          pytest --junit-xml=report.xml
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v4
+        if: always()
+        with:
+          report_paths: '**/report.xml'
+
