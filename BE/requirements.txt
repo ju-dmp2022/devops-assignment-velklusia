@@ -13,3 +13,5 @@ munch
 selenium
 webdriver-manager
 assertpy
+flask
+munch

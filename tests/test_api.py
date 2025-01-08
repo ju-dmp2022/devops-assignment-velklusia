@@ -1,3 +1,8 @@
+import sys
+import os
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import requests
 from calculator_client.models.calculation import Calculation
 from calculator_client.models.opertions import Opertions
