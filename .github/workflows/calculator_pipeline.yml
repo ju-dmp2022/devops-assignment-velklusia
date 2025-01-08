@@ -25,9 +25,11 @@ jobs:
         run: python BE/calculator.py --rest &
 
       # Run the tests...
-      - name: Run tests
-        run: |
-          pytest --junit-xml=report.xml
+      - name: Run Unit Tests
+        run: pytest tests/test_unit.py --junit-xml=unit_test_report.xml
+
+      - name: Run API Tests
+        run: pytest tests/test_api.py --junit-xml=api_test_report.xml
 
       # Publish the test results in GitHub...
       - name: Publish Test Report
