@@ -4,12 +4,12 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import requests
-from calculator_client.models.calculation import Calculation
-from calculator_client.models.opertions import Opertions
-from calculator_client.api.actions import calculate, login
-from calculator_client.models import ResultResponse, User, UserResponse, ErrorResponse
+from tests.calculator_client.models.calculation import Calculation
+from tests.calculator_client.models.opertions import Opertions
+from tests.calculator_client.api.actions import calculate, login
+from tests.calculator_client.models import ResultResponse, User, UserResponse, ErrorResponse
 from tests.test_base import BaseTestCalculator
-from calculator_client.client import Client
+from tests.calculator_client.client import Client
 
 class TestCalculatorHelper(BaseTestCalculator):
 

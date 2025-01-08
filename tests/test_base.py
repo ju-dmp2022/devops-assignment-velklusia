@@ -1,6 +1,6 @@
 import pytest
 from BE.calculator_helper import CalculatorHelper
-from calculator_client.client import Client
+from tests.calculator_client.client import Client
 
 BASE_URL = "http://localhost:5000"
 

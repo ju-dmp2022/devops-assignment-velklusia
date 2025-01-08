@@ -3,8 +3,5 @@
         "tests"
     ],
     "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true,
-    "terminal.integrated.env.windows": {
-        "PYTHONPATH": "C:\\Users\\46722\\Desktop\\DevOps1\\devops-assignment-velklusia"
-      }
+    "python.testing.pytestEnabled": true
 }
