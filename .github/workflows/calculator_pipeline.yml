@@ -19,7 +19,7 @@ jobs:
 
       - name: Build and tag Docker image
         run: |
-          docker build -t my-service-image:latest ./app
+          docker build -t my-service-image:latest ./BE
 
       - name: Create Docker network
         run: docker network create my-network
