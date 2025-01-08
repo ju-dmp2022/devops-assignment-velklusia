@@ -19,7 +19,7 @@ jobs:
 
       - name: Build and tag Docker image
         run: |
-          docker build -t my-service-image:latest ./app
+          docker build -t my-service-image:latest ./BE
 
       - name: Create Docker network
         run: docker network create my-network
@@ -38,8 +38,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r BE/requirements.txt
 
+      - name: Set PYTHONPATH
+        run: |
+          export PYTHONPATH=$PYTHONPATH:./BE
+
       - name: Wait for services to be ready
-        run: sleep 30
+        run: |
+          until curl --fail http://localhost:5000; do
+            echo "Waiting for the web service to be ready..."
+            sleep 5
+          done
 
       - name: Run tests
         run: |
@@ -50,4 +58,3 @@ jobs:
         if: always()
         with:
           report_paths: '**/report.xml'
-
