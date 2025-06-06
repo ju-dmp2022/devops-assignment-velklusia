@@ -1,20 +1,31 @@
 from assertpy import assert_that
 from selenium.webdriver.common.by import By
-from test_base import WebTestBase  # this works since it's in the same folder
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from BE.calculator_helper import CalculatorHelper
+from test_base import WebTestBase
 
 class TestEndToEnd(WebTestBase):
     def test_full_flow(self):
         self.driver.get("http://localhost:8080")  # or host.docker.internal if you're in Docker
 
-        # Register a new user
-        self.driver.find_element(By.ID, "register").click()
-        self.driver.find_element(By.ID, "username").send_keys("testuser123")
-        self.driver.find_element(By.ID, "password").send_keys("password123")
-        self.driver.find_element(By.ID, "confirm").send_keys("password123")
-        self.driver.find_element(By.ID, "register-button").click()
+         # Register a new user
 
-        success = self.driver.find_element(By.ID, "register-success").text
-        assert_that(success).contains("success")
+        from selenium.webdriver.support.ui import WebDriverWait
+        from selenium.webdriver.support import expected_conditions as EC
+
+        WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.ID, "username"))
+            ).send_keys("testuser123")
+
+        self.driver.find_element(By.ID, "password1").send_keys("password123")
+        self.driver.find_element(By.ID, "password2").send_keys("password123")
+        self.driver.find_element(By.ID, "register").click()
+
+        success = self.driver.find_element(By.ID, "errormsg").text
+        assert_that(success.lower()).contains("success")
+
 
         # Login
         self.driver.find_element(By.ID, "username").send_keys("testuser123")
