@@ -2,7 +2,10 @@ import pytest
 from BE.calculator_helper import CalculatorHelper
 from tests.calculator_client.client import Client
 
-BASE_URL = "http://localhost:5000"
+import sys
+import os
+
+BASE_URL = "http://localhost:5001"
 
 class BaseTestCalculator:
     def setup_method(self, method):
