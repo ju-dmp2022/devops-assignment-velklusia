@@ -6,6 +6,6 @@ COPY . .
 
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
-ENTRYPOINT ["python", "calculator.py", "--rest"]
+ENTRYPOINT ["python", "calculator_rest_service.py", "--port=5001"]
 
 
