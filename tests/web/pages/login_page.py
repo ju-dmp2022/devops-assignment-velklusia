@@ -9,11 +9,14 @@ class LoginPage(PageBase):
 
         self.page_elements = {
             'username': Element('//input[@id="username"]', self),
+            'password': Element('//input[@id="password"]', self),
+            'login': Element('//button[@id="login"]', self),
+            'register': Element('//button[@id="register"]', self)
         }
 
         self.elements = munchify(self.page_elements)
 
-def login (self, username, password):
-    self.elements.username.set(username)
-    self.elements.password.set(password)
-    self.elements.login.click()
+    def login (self, username, password):
+        self.elements.username.set(username)
+        self.elements.password.set(password)
+        self.elements.login.click()
