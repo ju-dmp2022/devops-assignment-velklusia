@@ -1,0 +1,59 @@
+name: CI
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+  workflow_dispatch:
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          cd BE
+          pip install -r requirements.txt
+          pip install pytest requests openapi-python-client
+
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)/BE" >> $GITHUB_ENV
+
+      - name: Start REST API
+        run: |
+          cd BE
+          python calculator_rest_service.py --rest &
+
+      - name: Run tests
+        run: |
+          cd BE
+          pytest --junit-xml=report.xml
+
+      - name: Publish test report
+        uses: mikepenz/action-junit-report@v3
+        if: always()
+        with:
+          report_paths: "**/report.xml"
+
+      - name: Log in to Azure Container Registry
+        if: success()
+        uses: docker/login-action@v2
+        with:
+          registry: judevops.azurecr.io
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Build Docker image
+        if: success()
+        run: docker build -t judevops.azurecr.io/artan_bajqinca-calculator:latest ./BE
+
+      - name: Push Docker image
+        if: success()
+        run: docker push judevops.azurecr.io/artan_bajqinca-calculator:latest
