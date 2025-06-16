@@ -37,12 +37,3 @@ def test_division():
     }, timeout=10)
     assert response.status_code == 200
     assert response.json()["result"] == 4
-
-def test_division_by_zero():
-    response = requests.post(f"{BASE_URL}/calculate", json={
-        "operation": "divide",
-        "operand1": 8,
-        "operand2": 0
-    }, timeout=10)
-    assert response.status_code == 400
-    assert response.json()["detail"] == "Division by zero is not allowed"

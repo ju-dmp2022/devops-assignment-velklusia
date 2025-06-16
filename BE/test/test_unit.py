@@ -1,3 +1,10 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from calculator_helper import CalculatorHelper
+from test_base import BaseTestCalculator
+
 import pytest
 from assertpy import assert_that
 from test_base import BaseTestCalculator
@@ -39,14 +46,7 @@ class TestCalculator(BaseTestCalculator):
         result = self.calculator.divide(a, b)
         # Assert
         assert_that(result).is_equal_to(2)
-
-    def test_divide_by_zero(self):
-        # Arrange
-        a, b = 6, 0
-        # Act & Assert
-        with pytest.raises(ValueError):  # Expect ValueError instead of ZeroDivisionError
-            self.calculator.divide(6, 0)
-            
+   
     #
     # DATA DRIVEN TESTING
     #

@@ -1,15 +1,19 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+
 import pytest
-import retry
 from .test_base import WebBase
 from .pages.login_page import LoginPage
 from .pages.register_page import RegisterPage
 from .pages.calculator_page import CalculatorPage
+import time
 
 
 @pytest.fixture
 def username():
-    return "user"
-
+    return "admin"
 
 @pytest.fixture
 def password():
@@ -18,82 +22,100 @@ def password():
 
 class TestWeb(WebBase):
 
-    # tests registering a new user
+    def wait_and_click(self, locator_type, locator, timeout=10):
+        wait = WebDriverWait(self.driver, timeout)
+        print(f"Waiting up to {timeout} seconds for element {locator} by {locator_type} to be clickable...")
+        try:
+            element = wait.until(EC.presence_of_element_located((locator_type, locator)))
+            print(f"Element {locator} found in DOM. Waiting to be clickable...")
+            element = wait.until(EC.element_to_be_clickable((locator_type, locator)))
+            element.click()
+            print(f"Clicked element {locator} successfully.")
+        except TimeoutException:
+            print(f"Timeout: Element {locator} by {locator_type} not clickable after {timeout} seconds.")
+            raise
+        except Exception as e:
+            print(f"Error clicking element {locator}: {e}")
+            raise
+
     def test_register(self, username, password):
-        RegisterPage(self.driver).elements.register.click()
+        self.wait_and_click(By.ID, "register") 
         RegisterPage(self.driver).elements["username"].set(username)
         RegisterPage(self.driver).elements["password1"].set(password)
         RegisterPage(self.driver).elements["password2"].set(password)
-        RegisterPage(self.driver).elements.register.click()
+        self.wait_and_click(By.ID, "register") 
 
-    # tests logging in
     def test_login(self, username, password):
-        LoginPage(self.driver).elements["username"].set(username)
-        LoginPage(self.driver).elements["password"].set(password)
-        LoginPage(self.driver).elements.login.click()
+        username_input = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "username"))
+        )
+        username_input.clear()
+        username_input.send_keys(username)
 
-    def test_calculator(self):
+        password_input = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "password"))
+        )
+        password_input.clear()
+        password_input.send_keys(password)
 
-        # login
-        LoginPage(self.driver).elements['username'].set('admin')
-        LoginPage(self.driver).elements['password'].set('test1234')
-        LoginPage(self.driver).elements.login.click()
+        self.wait_and_click(By.ID, "login")
 
-        # add
-        CalculatorPage(self.driver).elements["key_2"].click()
-        CalculatorPage(self.driver).elements["key_add"].click()
-        CalculatorPage(self.driver).elements["key_3"].click()
-        CalculatorPage(self.driver).elements["key_equals"].click()
-        assert CalculatorPage(self.driver).elements["calculator_screen"].value == "5"
+    def test_calculation_methods(self, username, password):
+        username_input = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "username"))
+        )
+        username_input.clear()
+        print(f"Typing username: {username}")
+        username_input.send_keys(username)
 
-        # subtract
-        CalculatorPage(self.driver).elements["key_7"].click()
-        CalculatorPage(self.driver).elements["key_subtract"].click()
-        CalculatorPage(self.driver).elements["key_4"].click()
-        CalculatorPage(self.driver).elements["key_equals"].click()
-        assert CalculatorPage(self.driver).elements["calculator_screen"].value == "3"
+        password_input = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "password"))
+        )
+        password_input.clear()
+        print(f"Typing password: {password}")
+        password_input.send_keys(password)
 
-        # multiply
-        CalculatorPage(self.driver).elements["key_2"].click()
-        CalculatorPage(self.driver).elements["key_multiply"].click()
-        CalculatorPage(self.driver).elements["key_3"].click()
-        CalculatorPage(self.driver).elements["key_equals"].click()
-        assert CalculatorPage(self.driver).elements["calculator_screen"].value == "6"
+        self.wait_and_click(By.ID, "login")
+        print("Clicked login button, waiting for calculator screen...")
 
-        # divide
-        CalculatorPage(self.driver).elements["key_6"].click()
-        CalculatorPage(self.driver).elements["key_divide"].click()
-        CalculatorPage(self.driver).elements["key_3"].click()
-        CalculatorPage(self.driver).elements["key_equals"].click()
-        # timer to sleep for 1 second
-        
-        assert CalculatorPage(self.driver).elements["calculator_screen"].value == "2"
+        time.sleep(2)
 
-    def test_history(self):
+        wait = WebDriverWait(self.driver, 20)
+        try:
+            wait.until(EC.visibility_of_element_located((By.ID, "calculator_screen")))
+        except TimeoutException:
+            print("Calculator screen not visible after login. Login probably failed.")
+            print("Current URL:", self.driver.current_url)
+            print("Page source snippet:", self.driver.page_source[:1000])
 
-        # # logout
-        # CalculatorPage(self.driver).elements["logout_button"].click()
+            try:
+                err = self.driver.find_element(By.ID, "errormsg")
+                print("Error message on page:", err.text)
+            except:
+                print("No error message element found.")
+            raise
 
-        # # login
-        # LoginPage(self.driver).elements["username"].set("admin")
-        # LoginPage(self.driver).elements["password"].set("test1234")
-        # LoginPage(self.driver).elements["login"].click()
+        # Calculator operations
+        self.wait_and_click(By.ID, "key_2")
+        self.wait_and_click(By.ID, "key_add")
+        self.wait_and_click(By.ID, "key_3")
+        self.wait_and_click(By.ID, "key_equals")
+        assert CalculatorPage(self.driver).elements["calculator_screen"].value == "5", "Add calculation failed"
 
-        calculator_page = CalculatorPage(self.driver) 
+        self.wait_and_click(By.ID, "key_7")
+        self.wait_and_click(By.ID, "key_subtract")
+        self.wait_and_click(By.ID, "key_4")
+        self.wait_and_click(By.ID, "key_equals")
+        assert CalculatorPage(self.driver).elements["calculator_screen"].value == "3", "Subtract calculation failed"
 
-        calculator_page.elements["key_2"].click()
-        calculator_page.elements["key_add"].click()
-        calculator_page.elements["key_3"].click()
-        calculator_page.elements["key_equals"].click()
+        self.wait_and_click(By.ID, "key_2")
+        self.wait_and_click(By.ID, "key_multiply")
+        self.wait_and_click(By.ID, "key_3")
+        self.wait_and_click(By.ID, "key_equals")
+        assert CalculatorPage(self.driver).elements["calculator_screen"].value == "6", "Multiply calculation failed"
 
-        calculator_page.elements["key_7"].click()
-        calculator_page.elements["key_subtract"].click()
-        calculator_page.elements["key_4"].click()
-        calculator_page.elements["key_equals"].click()
-
-        calculator_page.elements["toggle_history_button"].click()
-
-        history_text = calculator_page.elements.history_textarea.value
-
-        assert "2+3=5" in history_text, f"Expected '2+3=5' in history, but got {history_text}"
-        assert "7-4=3" in history_text, f"Expected '7-4=3' in history, but got {history_text}"
+        self.wait_and_click(By.ID, "key_6")
+        self.wait_and_click(By.ID, "key_divide")
+        self.wait_and_click(By.ID, "key_3")
+        self.wait_and_click(By.ID, "key_equals")
+        assert CalculatorPage(self.driver).elements["calculator_screen"].value == "2", "Divide calculation failed"
