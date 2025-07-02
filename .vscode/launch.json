@@ -1,0 +1,24 @@
+{ "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run locust",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "locust",
+      "args": [
+        "-f",
+        "${file}"
+      ],
+      "console": "integratedTerminal",
+      "gevent": true
+    },
+    {
+        "name": "Run locust single user",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${file}",
+        "console": "integratedTerminal",
+        "gevent": true
+    }
+  ]
+}

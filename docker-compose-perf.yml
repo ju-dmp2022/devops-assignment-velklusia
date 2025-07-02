@@ -1,0 +1,13 @@
+version: '3.8'
+name: perf-calculator
+
+services:
+  my_service:
+    image: judevops.azurecr.io/perf-calculator
+    container_name: api-calculator
+    ports:
+      - "5000:5000"  # Maps container port 5000 to host port 5000
+    deploy:
+      resources:
+        limits:
+          memory: 1.5g  # Limit the container to 1.5GB of memory
