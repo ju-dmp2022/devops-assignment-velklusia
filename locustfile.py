@@ -1,36 +1,44 @@
 from locust import HttpUser, task, between
-import random
-import json
 
-class CalculatorUser(HttpUser):
+class CalcUser(HttpUser):
     wait_time = between(2, 4)
-    
-    @task(2)  
-    def add(self):
-        self._calculate("add", 1, 1, expected_result=2)
-        
-    @task(1)
-    def subtract(self):
-        self._calculate("subtract", 5, 3, expected_result=2)
-        
-    @task(1)
-    def multiply(self):
-        self._calculate("multiply", 2, 3, expected_result=6)
-        
-    @task(1)
-    def divide(self):
-        self._calculate("divide", 10, 2, expected_result=5)
 
-    def _calculate(self, operation, op1, op2, expected_result):
-        payload = {"operation": operation, "operand1": op1, "operand2": op2}
-        with self.client.post("/calculate", json=payload, catch_response=True) as response:
-            if response.status_code != 200:
-                response.failure(f"HTTP {response.status_code}")
+    def on_start(self):
+        pass
+
+    @task(2)
+    def add(self):
+        self.run_calc("add", 1, 1, 2)
+
+    @task(1)
+    def sub(self):
+        self.run_calc("subtract", 2, 1, 1)
+
+    @task(1)
+    def mul(self):
+        self.run_calc("multiply", 2, 2, 4)
+
+    @task(1)
+    def div(self):
+        self.run_calc("divide", 4, 2, 2)
+
+    def run_calc(self, op, a, b, expected):
+        data = {"operation": op, "operand1": a, "operand2": b}
+        with self.client.post("/calculate", json=data, name=op, catch_response=True) as res:
+            if res.status_code != 200:
+                res.failure(f"HTTP {res.status_code}")
                 return
             try:
-                data = response.json()
+                result = res.json().get("result")
             except Exception as e:
-                response.failure(f"Invalid JSON response: {e}")
+                res.failure(f"Invalid JSON: {e}")
                 return
-            if data.get("result") != expected_result:
-                response.failure(f"Incorrect result for {operation}: {data.get('result')}")
+            if result != expected:
+                res.failure(f"Wrong {op} result: {result} (expected {expected})")
+
+if __name__ == "__main__":
+    from locust import run_single_user
+    CalcUser.host = "http://127.0.0.1:5000"
+    run_single_user(CalcUser)
+
+
